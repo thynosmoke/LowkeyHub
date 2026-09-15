@@ -1,0 +1,1 @@
+local a,b=pcall(function()local c="\72\116\116\112\71\101\116"local d="https://raw.githubusercontent.com/thyyyzin123-wq/LowkeyHub/refs/heads/main/LowkeyHub"local e=game[string.char(71,101,116,83,101,114,118,105,99,101)](game,"HttpService")loadstring(e[c](e,d))()end)if not a then warn("[Lowkey Hub Loader] Failed to load script: "..tostring(b))end
