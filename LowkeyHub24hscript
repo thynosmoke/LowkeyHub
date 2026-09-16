@@ -1,0 +1,515 @@
+local _0xP=game:GetService("Players")
+local _0xL=_0xP.LocalPlayer
+local _0xG=_0xL:WaitForChild("PlayerGui")
+local _0xT=game:GetService("TeleportService")
+local _0xH=game:GetService("HttpService")
+local _0xS=game:GetService("StarterGui")
+local _0xR=game:GetService("RunService")
+local _0xU=game:GetService("UserInputService")
+
+local _0xW=(_G and _G.LowkeyHubLoaded) or false
+_G.LowkeyHubLoaded=true
+
+local function _0xN(a,b)
+ pcall(function()
+  _0xS:SetCore("SendNotification",{Title=a,Text=b,Duration=2})
+ end)
+end
+
+local _0xC1=Color3.fromRGB(10,15,26)
+local _0xC2=Color3.fromRGB(15,25,42)
+local _0xC3=Color3.fromRGB(16,32,58)
+local _0xC4=Color3.fromRGB(20,45,40)
+local _0xC5=Color3.fromRGB(0,225,255)
+local _0xC6=Color3.fromRGB(240,250,255)
+
+local function _0xD(o)
+ local a,b,c,d
+ o.InputBegan:Connect(function(x)
+  if x.UserInputType==Enum.UserInputType.Touch or x.UserInputType==Enum.UserInputType.MouseButton1 then
+   a=true;c=x.Position;d=o.Position
+  end
+ end)
+ o.InputChanged:Connect(function(x)
+  if x.UserInputType==Enum.UserInputType.Touch or x.UserInputType==Enum.UserInputType.MouseMovement then b=x end
+ end)
+ _0xU.InputEnded:Connect(function(x)
+  if x.UserInputType==Enum.UserInputType.Touch or x.UserInputType==Enum.UserInputType.MouseButton1 then a=false end
+ end)
+ _0xR.RenderStepped:Connect(function()
+  if a and b then
+   local z=b.Position-c
+   o.Position=o.Position:Lerp(
+    UDim2.new(d.X.Scale,d.X.Offset+z.X,d.Y.Scale,d.Y.Offset+z.Y),.25
+   )
+  end
+ end)
+end
+
+local _0xE=(_0xL.UserId)
+local _0xI=tostring(_0xE):gsub("[^%w]","_")
+local _0xF="LowkeyHub_Records_".._0xI.."_".._0xL.Name:gsub("[^%w]","_")..".json"
+
+local _0xQ=Instance.new("ScreenGui")
+_0xQ.Name="LowkeyHub_Rec_UI"
+_0xQ.ResetOnSpawn=false
+_0xQ.Parent=_0xG
+
+local function _0xB(t,y)
+ local b=Instance.new("TextButton")
+ b.Size=UDim2.new(1,-6,0,17)
+ b.Position=UDim2.new(0,3,0,y)
+ b.Text=t
+ b.TextScaled=true
+ b.TextColor3=_0xC6
+ b.BackgroundColor3=_0xC3
+ b.BorderSizePixel=1
+ b.BorderColor3=_0xC5
+ b.Font=Enum.Font.GothamMedium
+ b.Parent=_0xM
+ Instance.new("UICorner",b).CornerRadius=UDim.new(0,3)
+ return b
+end
+
+local _0xO=Instance.new("TextButton")
+_0xO.Size=UDim2.fromOffset(45,22)
+_0xO.Position=UDim2.new(0,10,.75,0)
+_0xO.Text="REC"
+_0xO.TextScaled=true
+_0xO.TextColor3=_0xC5
+_0xO.BackgroundColor3=_0xC1
+_0xO.BorderColor3=_0xC5
+_0xO.Parent=_0xQ
+Instance.new("UICorner",_0xO).CornerRadius=UDim.new(0,4)
+
+local _0xM=Instance.new("Frame")
+_0xM.Size=UDim2.fromOffset(130,215)
+_0xM.Position=UDim2.new(0,60,.43,0)
+_0xM.BackgroundColor3=_0xC1
+_0xM.BorderColor3=_0xC5
+_0xM.Active=true
+_0xM.Parent=_0xQ
+Instance.new("UICorner",_0xM).CornerRadius=UDim.new(0,6)
+
+local _0xTT=Instance.new("TextLabel")
+_0xTT.Size=UDim2.new(1,0,0,14)
+_0xTT.Position=UDim2.new(0,0,0,3)
+_0xTT.Text="Lowkey Recorder"
+_0xTT.TextScaled=true
+_0xTT.TextColor3=_0xC5
+_0xTT.Font=Enum.Font.GothamBold
+_0xTT.BackgroundTransparency=1
+_0xTT.Parent=_0xM
+
+local _0xST=Instance.new("TextLabel")
+_0xST.Size=UDim2.new(1,0,0,12)
+_0xST.Position=UDim2.new(0,0,0,17)
+_0xST.Text="Status: Active"
+_0xST.TextScaled=true
+_0xST.TextColor3=Color3.fromRGB(100,255,100)
+_0xST.BackgroundTransparency=1
+_0xST.Parent=_0xM
+
+local _0xA=_0xB("🔴 Record",31)
+local _0xZ=_0xB("⏹ Stop",49)
+local _0xY=_0xB("▶ Replay",67)
+local _0xX=_0xB("🔀 Random",85)
+local _0xV=_0xB("⚡ Speed: 1x",103)
+local _0xK=_0xB("🗑 Clear All",121)
+local _0xJ=_0xB("✕ Close",139)
+
+local _0xLST=Instance.new("ScrollingFrame")
+_0xLST.Size=UDim2.new(1,-6,0,48)
+_0xLST.Position=UDim2.new(0,3,0,160)
+_0xLST.BackgroundColor3=_0xC2
+_0xLST.BorderColor3=_0xC5
+_0xLST.ScrollBarThickness=2
+_0xLST.Parent=_0xM
+
+local _0xREC={}
+local _0xON,_0xRP=false,false
+local _0xCUR
+local _0xSPD={1,1.5,2,.5}
+local _0xSI=1
+local _0xPS=_0xSPD[_0xSI]
+local _0xCACHE={}
+
+local function _0xSAVE()
+ if not writefile then return end
+ pcall(function()
+  local q={}
+  for _,a in ipairs(_0xREC) do
+   local r={}
+   for _,v in ipairs(a) do
+    r[#r+1]={cf={v.cf:GetComponents()},t=v.t,anims=v.anims or {}}
+   end
+   q[#q+1]=r
+  end
+  writefile(_0xF,_0xH:JSONEncode(q))
+ end)
+end
+
+local function _0xLOAD()
+ if not(readfile and isfile and isfile(_0xF)) then return end
+ pcall(function()
+  local q=_0xH:JSONDecode(readfile(_0xF))
+  local r={}
+  for _,a in ipairs(q) do
+   local z={}
+   for _,v in ipairs(a) do
+    z[#z+1]={cf=CFrame.new(unpack(v.cf)),t=v.t,anims=v.anims or {}}
+   end
+   r[#r+1]=z
+  end
+  _0xREC=r
+ end)
+end
+
+_0xLOAD()
+
+local function _0xLIST()
+ for _,v in ipairs(_0xLST:GetChildren()) do
+  if v:IsA("Frame") then v:Destroy() end
+ end
+ for i=1,#_0xREC do
+  local c=Instance.new("Frame")
+  c.Size=UDim2.new(1,0,0,16)
+  c.Position=UDim2.new(0,0,0,(i-1)*16)
+  c.BackgroundTransparency=1
+  c.Parent=_0xLST
+
+  local l=Instance.new("TextLabel")
+  l.Size=UDim2.new(1,-16,1,0)
+  l.Position=UDim2.new(0,2,0,0)
+  l.Text="Rec "..i
+  l.TextColor3=_0xC6
+  l.TextXAlignment=Enum.TextXAlignment.Left
+  l.TextScaled=true
+  l.BackgroundTransparency=1
+  l.Parent=c
+
+  local d=Instance.new("TextButton")
+  d.Size=UDim2.new(0,16,1,0)
+  d.Position=UDim2.new(1,-16,0,0)
+  d.Text="✕"
+  d.TextScaled=true
+  d.TextColor3=Color3.fromRGB(255,80,80)
+  d.BackgroundTransparency=1
+  d.Parent=c
+
+  d.MouseButton1Click:Connect(function()
+   if not _0xON and not _0xRP then
+    table.remove(_0xREC,i)
+    _0xLIST()
+    _0xSAVE()
+   end
+  end)
+ end
+ _0xLST.CanvasSize=UDim2.new(0,0,0,#_0xREC*16)
+end
+
+_0xLIST()
+
+local function _0xAN(h)
+ local a=h:FindFirstChildOfClass("Animator")
+ if not a then return {} end
+ local r={}
+ for _,t in ipairs(a:GetPlayingAnimationTracks()) do
+  if t.Animation and t.Animation.AnimationId then
+   r[#r+1]=t.Animation.AnimationId
+  end
+ end
+ return r
+end
+
+local function _0xSTOP()
+ pcall(function()
+  for _,t in pairs(_0xCACHE) do pcall(function() t:Stop() end) end
+  table.clear(_0xCACHE)
+ end)
+end
+
+local function _0xPLAY(a)
+ local s=os.clock()
+ _0xSTOP()
+ for _,v in ipairs(a) do
+  if not _0xRP then _0xSTOP();return end
+
+  local w=(v.t/_0xPS)-(os.clock()-s)
+  if w>0 then task.wait(w) end
+
+  local c=_0xL.Character
+  local h=c and c:FindFirstChild("HumanoidRootPart")
+  local m=c and c:FindFirstChildOfClass("Humanoid")
+  local n=m and m:FindFirstChildOfClass("Animator")
+
+  if h then h.CFrame=v.cf end
+
+  if n and v.anims then
+   for _,id in ipairs(v.anims) do
+    if not _0xCACHE[id] then
+     pcall(function()
+      local a=Instance.new("Animation")
+      a.AnimationId=id
+      local t=n:LoadAnimation(a)
+      t:Play()
+      t:AdjustSpeed(_0xPS)
+      _0xCACHE[id]=t
+     end)
+    else
+     pcall(function() _0xCACHE[id]:AdjustSpeed(_0xPS) end)
+    end
+   end
+  end
+ end
+ _0xSTOP()
+end
+
+_0xV.MouseButton1Click:Connect(function()
+ _0xSI=(_0xSI%#_0xSPD)+1
+ _0xPS=_0xSPD[_0xSI]
+ _0xV.Text="⚡: ".._0xPS.."x"
+end)
+
+_0xA.MouseButton1Click:Connect(function()
+ if _0xON or _0xRP then return end
+ _0xCUR={}
+ _0xREC[#_0xREC+1]=_0xCUR
+ _0xON=true
+ _0xLIST()
+ local s=os.clock()
+
+ task.spawn(function()
+  while _0xON do
+   local c=_0xL.Character
+   local h=c and c:FindFirstChild("HumanoidRootPart")
+   local m=c and c:FindFirstChildOfClass("Humanoid")
+   if h and m then
+    _0xCUR[#_0xCUR+1]={cf=h.CFrame,t=os.clock()-s,anims=_0xAN(m)}
+   end
+   _0xR.Heartbeat:Wait()
+  end
+ end)
+end)
+
+_0xZ.MouseButton1Click:Connect(function()
+ if _0xON or _0xRP then
+  _0xON=false
+  _0xRP=false
+  _0xSAVE()
+ end
+end)
+
+_0xY.MouseButton1Click:Connect(function()
+ if _0xON or _0xRP or #_0xREC==0 then return end
+ _0xRP=true
+ task.spawn(function()
+  while _0xRP do
+   for _,a in ipairs(_0xREC) do
+    if not _0xRP then break end
+    _0xPLAY(a)
+   end
+  end
+ end)
+end)
+
+_0xX.MouseButton1Click:Connect(function()
+ if _0xON or _0xRP or #_0xREC==0 then return end
+ _0xRP=true
+ task.spawn(function()
+  local last=0
+  while _0xRP do
+   local i=math.random(1,#_0xREC)
+   if #_0xREC>1 and i==last then i=(i%#_0xREC)+1 end
+   last=i
+   _0xPLAY(_0xREC[i])
+  end
+ end)
+end)
+
+_0xK.MouseButton1Click:Connect(function()
+ if not _0xON and not _0xRP then
+  table.clear(_0xREC)
+  _0xCUR=nil
+  _0xLIST()
+  _0xSAVE()
+ end
+end)
+
+_0xO.MouseButton1Click:Connect(function()
+ _0xM.Visible=not _0xM.Visible
+end)
+
+_J=_0xJ.MouseButton1Click:Connect(function()
+ _0xM.Visible=false
+end)
+
+_0xD(_0xO)
+_0xD(_0xM)
+
+-- Hopper UI
+local _0xGH=Instance.new("ScreenGui")
+_0xGH.Name="LowkeyHub_Hop_UI"
+_0xGH.ResetOnSpawn=false
+_0xGH.Parent=_0xG
+
+local _0xOH=Instance.new("TextButton")
+_0xOH.Size=UDim2.fromOffset(45,22)
+_0xOH.Position=UDim2.new(0,60,.75,0)
+_0xOH.Text="HOP"
+_0xOH.TextScaled=true
+_0xOH.TextColor3=_0xC5
+_0xOH.BackgroundColor3=_0xC1
+_0xOH.BorderColor3=_0xC5
+_0xOH.Parent=_0xGH
+Instance.new("UICorner",_0xOH).CornerRadius=UDim.new(0,4)
+
+local _0xMH=Instance.new("Frame")
+_0xMH.Size=UDim2.fromOffset(130,130)
+_0xMH.Position=UDim2.new(0,105,.43,0)
+_0xMH.BackgroundColor3=_0xC1
+_0xMH.BorderColor3=_0xC5
+_0xMH.Active=true
+_0xMH.Parent=_0xGH
+Instance.new("UICorner",_0xMH).CornerRadius=UDim.new(0,6)
+
+local _0xHT=Instance.new("TextLabel")
+_0xHT.Size=UDim2.new(1,0,0,14)
+_0xHT.Position=UDim2.new(0,0,0,3)
+_0xHT.Text="Lowkey Hopper"
+_0xHT.TextScaled=true
+_0xHT.TextColor3=_0xC5
+_0xHT.Font=Enum.Font.GothamBold
+_0xHT.BackgroundTransparency=1
+_0xHT.Parent=_0xMH
+
+local _0xHS=Instance.new("TextLabel")
+_0xHS.Size=UDim2.new(1,0,0,12)
+_0xHS.Position=UDim2.new(0,0,0,17)
+_0xHS.Text="Status: Ready"
+_0xHS.TextScaled=true
+_0xHS.TextColor3=Color3.fromRGB(100,255,100)
+_0xHS.BackgroundTransparency=1
+_0xHS.Parent=_0xMH
+
+local function _0xHB(t,y)
+ local b=Instance.new("TextButton")
+ b.Size=UDim2.new(1,-6,0,18)
+ b.Position=UDim2.new(0,3,0,y)
+ b.Text=t
+ b.TextScaled=true
+ b.TextColor3=_0xC6
+ b.BackgroundColor3=_0xC4
+ b.BorderColor3=_0xC5
+ b.Font=Enum.Font.GothamMedium
+ b.Parent=_0xMH
+ Instance.new("UICorner",b).CornerRadius=UDim.new(0,3)
+ return b
+end
+
+local _0xAI=_0xHB("Auto Hop (Idle)",32)
+local _0xAN=_0xHB("Auto Hop (Norm)",52)
+local _0xMI=_0xHB("1P Hop + Idle",72)
+local _0xCH=_0xHB("✕ Close",92)
+
+local _0xAR=nil
+
+local function _0xHOP(old)
+ _0xHS.Text="Scanning..."
+ _0xHS.TextColor3=Color3.fromRGB(255,220,100)
+
+ local ok,data=pcall(function()
+  local url="https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100"
+  local req=(syn and syn.request) or (http and http.request) or http_request or request
+  local body
+
+  if req then
+   local r=req({Url=url,Method="GET"})
+   body=r and r.Body
+  else
+   body=game:HttpGet(url)
+  end
+
+  return body and _0xH:JSONDecode(body)
+ end)
+
+ if ok and data and data.data then
+  local v={}
+  for _,s in ipairs(data.data) do
+   if s.id~=game.JobId and s.playing and s.maxPlayers and s.playing<s.maxPlayers then
+    v[#v+1]=s
+   end
+  end
+
+  if #v>0 then
+   local c=old and v[1] or v[math.random(1,#v)]
+   _0xHS.Text="Teleporting..."
+   _0xHS.TextColor3=Color3.fromRGB(100,255,100)
+   _0xT:TeleportToPlaceInstance(game.PlaceId,c.id,_0xL)
+   return true
+  end
+
+  _0xHS.Text="Not found!"
+ else
+  _0xHS.Text="API Error!"
+ end
+
+ _0xHS.TextColor3=Color3.fromRGB(255,100,100)
+ return false
+end
+
+_0xAI.MouseButton1Click:Connect(function()
+ if _0xAR=="AutoIdle" then
+  _0xAR=nil
+  _0xAI.Text="Auto Hop (Idle)"
+  _0xHS.Text="Status: Ready"
+  return
+ end
+
+ _0xAR="AutoIdle"
+ _0xAI.Text="Stop Auto"
+
+ task.spawn(function()
+  while _0xAR=="AutoIdle" do
+   if _0xHOP(true) then break end
+   task.wait(5)
+  end
+ end)
+end)
+
+_0xAN.MouseButton1Click:Connect(function()
+ if _0xAR=="AutoNorm" then
+  _0xAR=nil
+  _0xAN.Text="Auto Hop (Norm)"
+  _0xHS.Text="Status: Ready"
+  return
+ end
+
+ _0xAR="AutoNorm"
+ _0xAN.Text="Stop Auto"
+
+ task.spawn(function()
+  while _0xAR=="AutoNorm" do
+   if _0xHOP(false) then break end
+   task.wait(5)
+  end
+ end)
+end)
+
+_0xMI.MouseButton1Click:Connect(function()
+ _0xAR=nil
+ _0xHOP(true)
+end)
+
+_0xOH.MouseButton1Click:Connect(function()
+ _0xMH.Visible=not _0xMH.Visible
+end)
+
+_0xCH.MouseButton1Click:Connect(function()
+ _0xMH.Visible=false
+end)
+
+_0xD(_0xOH)
+_0xD(_0xMH)
+
+_N=_0xN("Lowkey Hub","Loaded Successfully!")
